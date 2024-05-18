@@ -144,6 +144,7 @@ VALUES
 
 --- INNER JOIN 
 
+
  --“Clientes” y “Compras” para obtener los detalles de las compras junto con los nombres de los clientes:
 
 SELECT c.id_compra, cl.nombre AS nombre_cliente, c.fecha_compra, c.total
@@ -242,3 +243,57 @@ SELECT c.id_compra, co.nombre AS nombre_comic, cc.cantidad
 FROM Compras c
 LEFT JOIN Comic_Compras cc ON c.id_compra = cc.id_compra
 LEFT JOIN Comics co ON cc.id_comic = co.id_comic;
+
+
+
+
+
+--- VIEWS
+
+--“VistaClientesCompras”: Esta vista mostrará los detalles de las compras realizadas por cada cliente.
+
+CREATE VIEW VistaClientesCompras AS
+SELECT cl.nombre AS nombre_cliente, c.id_compra, c.fecha_compra, c.total
+FROM Clientes cl
+LEFT JOIN Compras c ON cl.id_cliente = c.id_cliente;
+
+
+
+
+-- “VistaComicsInventario”: Esta vista mostrará los cómics disponibles en el inventario junto con su cantidad.
+
+CREATE VIEW VistaComicsInventario AS
+SELECT co.nombre AS nombre_comic, i.cantidad_disponible
+FROM Comics co
+LEFT JOIN Inventario i ON co.id_comic = i.id_comic;
+
+
+-- VistaComprasComicCompras”: Esta vista mostrará todas las compras junto con los cómics comprados
+
+CREATE VIEW VistaComprasComicCompras AS
+SELECT c.id_compra, co.nombre AS nombre_comic, cc.cantidad
+FROM Compras c
+LEFT JOIN Comic_Compras cc ON c.id_compra = cc.id_compra
+LEFT JOIN Comics co ON cc.id_comic = co.id_comic;
+
+
+
+-- VistaGeneral: integra un reporte principal de las compras
+
+CREATE VIEW VistaGeneral AS
+SELECT
+    cl.id_cliente,
+    cl.nombre AS nombre_cliente,
+    cl.correo_electronico,
+    c.id_compra,
+    c.fecha_compra,
+    c.total,
+    co.id_comic,
+    co.nombre AS nombre_comic,
+    co.precio,
+    i.cantidad_disponible
+FROM Clientes cl
+LEFT JOIN Compras c ON cl.id_cliente = c.id_cliente
+LEFT JOIN Comic_Compras cc ON c.id_compra = cc.id_compra
+LEFT JOIN Comics co ON cc.id_comic = co.id_comic
+LEFT JOIN Inventario i ON co.id_comic = i.id_comic;
