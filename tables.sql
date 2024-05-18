@@ -1,54 +1,71 @@
 CREATE TABLE Clientes (
-    id_cliente INT PRIMARY KEY,
+    id_cliente bigint identity(1,1) PRIMARY KEY,
     nombre NVARCHAR(100),
     correo_electronico NVARCHAR(255),
 	pass NVARCHAR(255)
 );
 
 CREATE TABLE Comics (
-    id_comic INT PRIMARY KEY,
+    id_comic bigint identity(10,2) PRIMARY KEY,
     nombre NVARCHAR(100),
 	anio tinyint,
     precio DECIMAL(10, 2)
 );
 
-
 CREATE TABLE Compras (
-    id_compra INT PRIMARY KEY,
-    id_cliente INT,
-	id_comic INT,
+    id_compra bigint identity(100,3) PRIMARY KEY,
+    id_cliente bigint ,
     fecha_compra DATE,
     total DECIMAL(10, 2),
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),
-	FOREIGN KEY (id_comic) REFERENCES Comics(id_comic)
 );
 
 
 CREATE TABLE Inventario (
-    id_inventario INT PRIMARY KEY,
-    id_comic INT,
+    id_inventario bigint identity(200,1)PRIMARY KEY,
+    id_comic bigint ,
     cantidad_disponible INT,
+	disponibilidad binary,
     FOREIGN KEY (id_comic) REFERENCES Comics(id_comic)
 );
 
 
+CREATE TABLE Comic_Compras (
+    id_CC bigint identity(1000,2) PRIMARY KEY,
+    cantidad tinyint,
+	id_compra bigint ,
+	id_comic bigint ,
+	FOREIGN KEY (id_compra) REFERENCES Compras(id_compra),
+	FOREIGN KEY (id_comic) REFERENCES Comics(id_comic),
+	
+);
+
+
+
+
+
+DROP TABLE Comic_Compras;  
 DROP TABLE Inventario ;  
 DROP TABLE Comics ;  
 DROP TABLE Compras ;  
 DROP TABLE Clientes ;  
 
 
+
+
 --- Insert's 
 
-INSERT INTO Clientes (id_cliente, nombre, correo_electronico,pass)
+INSERT INTO Clientes (nombre, correo_electronico,pass)
 VALUES
-    (1, 'Juan ', 'juan@example.com', '123456789'),
-	(2, 'Carlos', 'Carlos@example.com', '123456789'),
-    (3, 'Maria ', 'Maria@example.com', '123456789'),
-    (4, 'Alejandro', 'Ale@example.com', '123456789'),
-	(5, 'Jesus', 'Jesus@example.com', '123456789'),
-	(6, 'Vania', 'Vania@example.com', '123456789'),
-	(7, 'Melissa', 'Meli@example.com', '123456789');
+    ('Juan ', 'juan@example.com', '123456789'),
+	('Carlos', 'Carlos@example.com', '123456789'),
+    ('Maria ', 'Maria@example.com', '123456789'),
+    ('Alejandro', 'Ale@example.com', '123456789'),
+	('Jesus', 'Jesus@example.com', '123456789'),
+	('Vania', 'Vania@example.com', '123456789'),
+	('Reyna', 'Reyna@example.com', '123456789'),
+	('Ivan', 'ivan@example.com', '123456789'),
+	('Melissa', 'Meli@example.com', '123456789');
 
 
 Select * from Clientes;
@@ -56,59 +73,172 @@ Select * from Clientes;
 delete  from Clientes;
 
 
-INSERT INTO Compras (id_compra, id_cliente, fecha_compra, total)
+
+INSERT INTO Comics (nombre,anio,precio)
 VALUES
-    (101, 1, '2024-05-15', 50.00),
-    (102, 2, '2024-05-14', 75.00),
-    (103, 1, '2024-05-13', 30.00);
+    ('Spider-Man #1',1961, 100.00),
+    ('Batman #27', 1978,98.50),
+	('Deadpool #1 ', 1989,562.00),
+	('Return to Barry Allen #1', 1992,12.50),
+	('Wonder Woman #10',1978,450.50),
+	('WatchMen #3', 1990,298.50),
+	('Hellboy #15', 1988,654.50),
+	('Civil war #5', 1990,324.00),
+	('SandMan #1', 1990,127.00),
+    ('X-Men #12', 1982, 800.00);
+
+
+Select * from Comics;
 
 
 
-
-INSERT INTO Comics (id_comic, nombre, precio)
+INSERT INTO Inventario (id_comic, cantidad_disponible,disponibilidad)
 VALUES
-    (1, 'Spider-Man #1', 10.00),
-    (2, 'Batman #27', 12.50),
-    (3, 'X-Men #12', 8.00);
+    (10, 100, 1),
+    (12, 25, 1),
+    (14, 0, 0),
+	(16, 42, 1),
+	(18, 7, 1),
+	(20, 50, 1),
+	(22, 0, 0),
+	(24, 6, 1),
+	(26, 9, 1),
+	(28, 0, 0);
+
+Select * from Inventario;
 
 
-INSERT INTO Inventario (id_inventario, id_comic, cantidad_disponible)
+
+
+INSERT INTO Compras (id_cliente, fecha_compra, total)
 VALUES
-    (201, 1, 20),
-    (202, 2, 15),
-    (203, 3, 30);
+    ( 9, '2024-05-15', 580.00),
+    ( 2, '2024-05-14', 755.00),
+	( 5, '2024-05-14', 485.00),
+    ( 1, '2024-05-14', 875.00),
+	( 2, '2024-05-14', 755.00),
+	( 9, '2024-05-14', 1111.00),
+    ( 7, '2024-05-13', 360.00);
 
-
-
---- INNER JOIN para obtener los detalles de las compras junto con los nombres de los clientes:
-
-SELECT Compras.id_compra, Clientes.nombre, Compras.fecha_compra, Compras.total
-FROM Compras
-INNER JOIN Clientes ON Compras.id_cliente = Clientes.id_cliente;
-
-
---- LEFT JOIN para obtener todos los comics junto con las compras realizadas por cada cliente:
-
-
-SELECT Comics.nombre, Compras.id_compra, Clientes.nombre AS nombre_cliente
-FROM Comics
-LEFT JOIN Compras ON Comics.id_comic = Compras.id_comic
-LEFT JOIN Clientes ON Compras.id_cliente = Clientes.id_cliente;
-
-
-
--- RIGHT JOIN para obtener todos los clientes junto con las compras que han realizado (incluso si no han realizado ninguna compra):
-
-
-SELECT Clientes.nombre, Compras.id_compra, Compras.fecha_compra
-FROM Clientes
-RIGHT JOIN Compras ON Clientes.id_cliente = Compras.id_cliente;
+Select * from Compras;
 
 
 
 
+INSERT INTO Comic_Compras (cantidad, id_compra, id_comic)
+VALUES
+    ( 2, 100, 14),
+	( 3, 103, 20),
+	( 1, 106, 18),
+	( 8, 109, 10),
+	( 1, 112, 28),
+	( 2, 115, 22),
+	( 2, 118, 26);
+
+	Select * from Compras;
+	Select * from Comics;
+
+	Select * from Comic_Compras ;
+
+
+
+--- INNER JOIN 
+
+ --“Clientes” y “Compras” para obtener los detalles de las compras junto con los nombres de los clientes:
+
+SELECT c.id_compra, cl.nombre AS nombre_cliente, c.fecha_compra, c.total
+FROM Compras c
+INNER JOIN Clientes cl ON c.id_cliente = cl.id_cliente;
+
+
+
+-- Comics e Inventario para obtener los cómics disponibles en el inventario:
+
+SELECT co.nombre, i.cantidad_disponible
+FROM Comics co
+INNER JOIN Inventario i ON co.id_comic = i.id_comic;
+
+
+
+-- Compras” y “Comic_Compras” para obtener los detalles de las compras junto con los cómics comprados:
+
+SELECT cc.id_compra, co.nombre AS nombre_comic, cc.cantidad
+FROM Comic_Compras cc
+INNER JOIN Comics co ON cc.id_comic = co.id_comic
+
+
+-- “Clientes”, “Compras” y “Comic_Compras” para obtener los detalles de las compras realizadas por cada cliente y los cómics comprados
+
+SELECT cl.nombre AS nombre_cliente, c.id_compra, co.nombre AS nombre_comic, cc.cantidad
+FROM Clientes cl
+INNER JOIN Compras c ON cl.id_cliente = c.id_cliente
+INNER JOIN Comic_Compras cc ON c.id_compra = cc.id_compra
+INNER JOIN Comics co ON cc.id_comic = co.id_comic;
+
+
+-- Inner Join a todas las tablas 
+
+SELECT cl.nombre AS nombre_cliente, c.id_compra, co.nombre AS nombre_comic, cc.cantidad, i.cantidad_disponible
+FROM Clientes cl
+INNER JOIN Compras c ON cl.id_cliente = c.id_cliente
+INNER JOIN Comic_Compras cc ON c.id_compra = cc.id_compra
+INNER JOIN Comics co ON cc.id_comic = co.id_comic
+INNER JOIN Inventario i ON co.id_comic = i.id_comic;
+
+
+
+--RIGHT JOIN
+
+--  “Clientes” y “Compras” para obtener todos los clientes junto con las compras que han realizado
+
+SELECT cl.nombre AS nombre_cliente, c.id_compra, c.fecha_compra
+FROM Clientes cl
+RIGHT JOIN Compras c ON cl.id_cliente = c.id_cliente;
+
+
+-- “Comics” y “Inventario” para obtener todos los cómics junto con la cantidad disponible en el inventario
+
+SELECT co.nombre AS nombre_comic, i.cantidad_disponible
+FROM Comics co
+RIGHT JOIN Inventario i ON co.id_comic = i.id_comic;
+
+
+
+-- “Compras” y “Inventario” para obtener todas las compras junto con la cantidad disponible de cómics en el inventario
+
+SELECT c.id_compra, co.nombre AS nombre_comic, i.cantidad_disponible
+FROM Compras c
+RIGHT JOIN Comic_Compras cc ON c.id_compra = cc.id_compra
+RIGHT JOIN Comics co ON cc.id_comic = co.id_comic
+RIGHT JOIN Inventario i ON co.id_comic = i.id_comic;
 
 
 
 
+-- LEFT JOIN
 
+
+
+--Clientes” y “Compras” para obtener todos los clientes junto con las compras que han realizado
+
+
+SELECT cl.nombre AS nombre_cliente, c.id_compra, c.fecha_compra, c.total
+FROM Clientes cl
+LEFT JOIN Compras c ON cl.id_cliente = c.id_cliente;
+
+
+
+-- "Comics” y “Inventario” para obtener todos los cómics junto con la cantidad disponible en el inventario
+
+SELECT co.nombre AS nombre_comic, i.cantidad_disponible
+FROM Comics co
+LEFT JOIN Inventario i ON co.id_comic = i.id_comic;
+
+
+
+--  “Compras” y “Comic_Compras” para obtener todas las compras junto con los cómics comprados
+
+SELECT c.id_compra, co.nombre AS nombre_comic, cc.cantidad
+FROM Compras c
+LEFT JOIN Comic_Compras cc ON c.id_compra = cc.id_compra
+LEFT JOIN Comics co ON cc.id_comic = co.id_comic;
